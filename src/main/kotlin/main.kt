@@ -3,31 +3,32 @@ import java.util.LinkedList
 
 const val size = 3
 
-fun main(args: Array<String>) {
-//    val input = randomInput()
+data class Answer(val seq: MutableList<Int>, val secondTypeAnswers: Int)
 
-    val input = "18 9 10 18 13 17 9 10 3 15 3 16 12 17 2 2 3 2 2 2 15 4 3 1 18 7 14 1 14 1 3 15 7 2 16 7 4 14 11 16 14 17 5 16 7 12 15 2 13 15 11 1 2 3 1 5 15 17 13 6 1 8 12 12 8 12 18 15 8 16 9 18 18 11 9 15 7 15 6"
-        .split(" ").map {it.toInt()}
-    println(input.joinToString(" "))
-    println(fifo(input).joinToString(" "))
+fun main(args: Array<String>) {
+    val input = randomInput()
+    println(input)
+    println(lru(input))
 }
 
-fun randomInput(): Array<Int> {
+fun randomInput(): List<Int> {
 //    random sequence of requests with random size
 
-    val size = (15..20).random()
-    return Array<Int>(size) {
-        (1..5).random()
+    val size = (100..150).random()
+    return List<Int>(size) {
+        (1..10).random()
     }
 }
 
 
 // Algorithms
 
-fun fifo(listOfQueries: List<Int>): MutableList<Int> {
+fun fifo(listOfQueries: List<Int>): Answer {
     val listOfPages: Queue<Int> = LinkedList<Int>()
 
     val listOfAnswers = mutableListOf<Int>()
+
+    var counter = 0
 
     for (queryPage in listOfQueries) {
 
@@ -46,11 +47,46 @@ fun fifo(listOfQueries: List<Int>): MutableList<Int> {
 //          memory is overloaded and there is no request item in memory, we have to replace something
             listOfPages.add(queryPage)
             listOfAnswers.add(listOfPages.poll())
+
+            counter++
         }
 
     }
 
-    return listOfAnswers
-
+    return Answer(listOfAnswers, counter)
 }
 
+fun lru(listOfQueries: List<Int>): Answer {
+    val pages: MutableList<Int> = mutableListOf<Int>()
+    val listOfAnswers = mutableListOf<Int>()
+
+    pages.add(listOfQueries.first())
+
+    listOfAnswers.add(-2)
+
+    var counter = 0
+
+    for (queryPage in listOfQueries.slice(1 until listOfQueries.size)) {
+        if (queryPage in pages) {
+//            Page is already loaded, let move it to the end of list
+            pages.remove(queryPage)
+            pages.add(queryPage)
+
+            listOfAnswers.add(-1)
+        } else if (pages.size < size) {
+//            Page is not loaded but we don't have to replace anything
+            pages.add(queryPage)
+
+            listOfAnswers.add(-1)
+        } else {
+//            Page is not loaded and we have to replace something
+
+            listOfAnswers.add(pages.first())
+            counter++
+            pages.removeFirst()
+            pages.add(queryPage)
+        }
+    }
+
+    return Answer(listOfAnswers, counter)
+}
