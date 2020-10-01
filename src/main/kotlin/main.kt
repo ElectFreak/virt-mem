@@ -24,28 +24,28 @@ fun randomInput(): Array<Int> {
 
 // Algorithms
 
-fun fifo(listOfQueries: List<Int>): Array<Int?> {
+fun fifo(listOfQueries: List<Int>): MutableList<Int> {
     val listOfPages: Queue<Int> = LinkedList<Int>()
 
-    val listOfAnswers = arrayOfNulls<Int>(listOfQueries.size)
+    val listOfAnswers = mutableListOf<Int>()
 
-    for ((i, queryPage) in listOfQueries.withIndex()) {
+    for (queryPage in listOfQueries) {
 
         if (listOfPages.isEmpty()) {
 //          The first request
             listOfPages.add(queryPage)
-            listOfAnswers[i] = -2
+            listOfAnswers.add(-2)
         } else if (queryPage in listOfPages) {
 //           queryPage is already loaded
-            listOfAnswers[i] = -1
+            listOfAnswers.add(-1)
         } else if (listOfPages.size < size) {
 //           memory is not overloaded, we don't have to replace any item
             listOfPages.add(queryPage)
-            listOfAnswers[i] = -2
+            listOfAnswers.add(-2)
         } else {
 //          memory is overloaded and there is no request item in memory, we have to replace something
             listOfPages.add(queryPage)
-            listOfAnswers[i] = listOfPages.poll()
+            listOfAnswers.add(listOfPages.poll())
         }
 
     }
@@ -53,3 +53,4 @@ fun fifo(listOfQueries: List<Int>): Array<Int?> {
     return listOfAnswers
 
 }
+
