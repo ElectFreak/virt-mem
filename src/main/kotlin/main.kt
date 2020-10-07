@@ -24,7 +24,7 @@ fun randomInput(): List<Int> {
 // Algorithms
 
 fun fifo(listOfQueries: List<Int>): Answer {
-    val listOfPages: Queue<Int> = LinkedList<Int>()
+    val loadedPages: Queue<Int> = LinkedList<Int>()
 
     val listOfAnswers = mutableListOf<Int>()
 
@@ -32,21 +32,21 @@ fun fifo(listOfQueries: List<Int>): Answer {
 
     for (queryPage in listOfQueries) {
 
-        if (listOfPages.isEmpty()) {
+        if (loadedPages.isEmpty()) {
 //          The first request
-            listOfPages.add(queryPage)
+            loadedPages.add(queryPage)
             listOfAnswers.add(-2)
-        } else if (queryPage in listOfPages) {
+        } else if (queryPage in loadedPages) {
 //           queryPage is already loaded
             listOfAnswers.add(-1)
-        } else if (listOfPages.size < size) {
+        } else if (loadedPages.size < size) {
 //           memory is not overloaded, we don't have to replace any item
-            listOfPages.add(queryPage)
+            loadedPages.add(queryPage)
             listOfAnswers.add(-2)
         } else {
 //          memory is overloaded and there is no request item in memory, we have to replace something
-            listOfPages.add(queryPage)
-            listOfAnswers.add(listOfPages.poll())
+            loadedPages.add(queryPage)
+            listOfAnswers.add(loadedPages.poll())
 
             counter++
         }
@@ -57,34 +57,34 @@ fun fifo(listOfQueries: List<Int>): Answer {
 }
 
 fun lru(listOfQueries: List<Int>): Answer {
-    val pages: MutableList<Int> = mutableListOf<Int>()
+    val loadedPages: MutableList<Int> = mutableListOf<Int>()
     val listOfAnswers = mutableListOf<Int>()
 
-    pages.add(listOfQueries.first())
+    loadedPages.add(listOfQueries.first())
 
     listOfAnswers.add(-2)
 
     var counter = 0
 
     for (queryPage in listOfQueries.slice(1 until listOfQueries.size)) {
-        if (queryPage in pages) {
+        if (queryPage in loadedPages) {
 //            Page is already loaded, let move it to the end of list
-            pages.remove(queryPage)
-            pages.add(queryPage)
+            loadedPages.remove(queryPage)
+            loadedPages.add(queryPage)
 
             listOfAnswers.add(-1)
-        } else if (pages.size < size) {
+        } else if (loadedPages.size < size) {
 //            Page is not loaded but we don't have to replace anything
-            pages.add(queryPage)
+            loadedPages.add(queryPage)
 
             listOfAnswers.add(-1)
         } else {
 //            Page is not loaded and we have to replace something
 
-            listOfAnswers.add(pages.first())
+            listOfAnswers.add(loadedPages.first())
             counter++
-            pages.removeFirst()
-            pages.add(queryPage)
+            loadedPages.removeFirst()
+            loadedPages.add(queryPage)
         }
     }
 
