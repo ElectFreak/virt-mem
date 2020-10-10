@@ -8,7 +8,7 @@ data class Answer(val seq: MutableList<Int>, val secondTypeAnswers: Int)
 fun main(args: Array<String>) {
     val input = randomInput()
     println(input)
-    println(lru(input))
+    println(applyAlgo(input, ::fifo))
 }
 
 fun randomInput(): List<Int> {
@@ -20,40 +20,42 @@ fun randomInput(): List<Int> {
     }
 }
 
+// Carcass
 
-// Algorithms
-
-fun fifo(listOfQueries: List<Int>): Answer {
-    val loadedPages: Queue<Int> = LinkedList<Int>()
-
-    val listOfAnswers = mutableListOf<Int>()
+fun applyAlgo(listOfQueries: List<Int>, algo: (restQueries: List<Int>, loadedPages: List<Int>) -> Int): Pair<Int, MutableList<Int>> {
+    val listOfAnswers: MutableList<Int> = mutableListOf<Int>()
+    val loadedPages: MutableList<Int> = mutableListOf<Int>()
 
     var counter = 0
 
-    for (queryPage in listOfQueries) {
+    for (i in 1..size) {
+        listOfAnswers.add(-1)
+        loadedPages.add(listOfQueries[i])
+    }
 
-        if (loadedPages.isEmpty()) {
-//          The first request
-            loadedPages.add(queryPage)
-            listOfAnswers.add(-2)
-        } else if (queryPage in loadedPages) {
-//           queryPage is already loaded
+    for (i in size+1 until listOfQueries.size) {
+        if (listOfQueries[i] in loadedPages) {
             listOfAnswers.add(-1)
-        } else if (loadedPages.size < size) {
-//           memory is not overloaded, we don't have to replace any item
-            loadedPages.add(queryPage)
-            listOfAnswers.add(-2)
         } else {
-//          memory is overloaded and there is no request item in memory, we have to replace something
-            loadedPages.add(queryPage)
-            listOfAnswers.add(loadedPages.poll())
-
-            counter++
+            val pageToReplace: Int = algo(listOfQueries.slice(i until listOfQueries.size), loadedPages)
+            if (pageToReplace != -1) {
+                counter++
+                loadedPages.remove(pageToReplace)
+                loadedPages.add(listOfQueries[i])
+                listOfAnswers.add(pageToReplace)
+            }
         }
 
     }
 
-    return Answer(listOfAnswers, counter)
+    return Pair(counter, listOfAnswers)
+}
+
+
+// Algorithms
+
+fun fifo(restQueries: List<Int>, loadedPages: List<Int>): Int {
+    return loadedPages.first()
 }
 
 fun lru(listOfQueries: List<Int>): Answer {
@@ -89,4 +91,34 @@ fun lru(listOfQueries: List<Int>): Answer {
     }
 
     return Answer(listOfAnswers, counter)
+}
+
+fun opt(listOfQueries: List<Int>): Answer {
+    val loadedPages: MutableList<Int> = mutableListOf()
+    val listOfAnswers: MutableList<Int> = mutableListOf()
+
+    for ((index, queryPage) in listOfQueries.withIndex()) {
+        if (listOfAnswers.isEmpty()) {
+            listOfAnswers.add(-1)
+
+            loadedPages.add(queryPage)
+        } else if (queryPage in loadedPages) {
+            listOfAnswers.add(-1)
+        } else if (loadedPages.size < size) {
+            loadedPages.add(queryPage)
+
+            listOfAnswers.add(-1)
+        } else {
+
+//          replace
+            val firstQueriesList: MutableList<Int> = mutableListOf()
+            loadedPages.map { pageNumber -> listOfQueries.slice(index until listOfQueries.size).indexOf(pageNumber) }
+                .reduce { acc, value ->
+                    if (value > acc) value else acc
+                }
+
+            listOfAnswers.add(firstQueriesList.last())
+        }
+    }
+    return Answer(listOfAnswers, 0)
 }
