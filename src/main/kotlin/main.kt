@@ -20,7 +20,8 @@ fun validateInput(path: String?): Pair<Int, List<Int>> {
         val inputData = File(path).readLines()
 
         if (inputData.isEmpty()) throw Exception("Input file is empty")
-        if (!inputData[0].all { it.isDigit() }) throw Exception("First line is not digit")
+        if (!inputData[0].all { it.isDigit() }) throw Exception("First line contains not digit")
+        if (inputData[0].toInt() == 0) throw Exception("Size of memory can not be zero")
         if (inputData.size < 2) throw Exception("Two strings are required")
         if (inputData.size > 2) println("Be careful: strings after the second will be ignored")
         if (inputData[0].split(" ").size > 1) println("Be careful: there is only one memory size")
@@ -29,6 +30,11 @@ fun validateInput(path: String?): Pair<Int, List<Int>> {
             num.map { char ->
                 if (!char.isDigit() && !char.isWhitespace()) println("Be careful: only digits and whitespaces are allowed")
             }
+
+            if (num.toIntOrNull() != null && num.toInt() < 0) {
+                throw Exception("Number of page can not be negative")
+            }
+
             num.toIntOrNull()
         })
 
