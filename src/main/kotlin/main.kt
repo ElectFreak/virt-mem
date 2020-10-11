@@ -1,16 +1,44 @@
-import java.util.*
+import java.io.File
+import java.lang.Exception
 
 const val size = 3
 
 data class Answer(val seq: MutableList<Int>, val secondTypeAnswers: Int)
 
 fun main(args: Array<String>) {
-//    val input = randomInput()
-    val input = listOf<Int>(3, 4)
-    println(input)
-    println(applyAlgo(input, ::opt))
-    println(applyAlgo(input, ::fifo))
-    println(applyAlgo(input, ::lru))
+    askInput()
+}
+
+fun askInput(): List<Int> {
+    println("Enter path to file")
+    return validateInput(readLine())
+}
+
+fun validateInput(path: String?): List<Int> {
+    try {
+        if (path == null) throw Exception("Path is not given")
+        val inputData = File(path).readLines()
+
+        if (!inputData[0][0].isDigit()) throw Exception("First char in first line is not digit")
+        if (inputData.size < 2) throw Exception("Two strings are required")
+        if (inputData.size > 2) println("Be careful: strings after the second will be ignored")
+        if (inputData[0].split(" ").size > 1) println("Be careful: there is only one memory size")
+
+        return inputData[1].split(" ").mapNotNull { num ->
+            num.map { char ->
+                println(char)
+                if (!char.isDigit() && !char.isWhitespace()) println("Be careful: only digits and whitespaces are allowed")
+            }
+            num.toIntOrNull()
+        }
+
+    } catch (e: Exception) {
+        println("Error")
+        println(e.message)
+        println("Try again:")
+
+        return askInput()
+    }
 }
 
 fun randomInput(): List<Int> {
