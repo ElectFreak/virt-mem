@@ -6,7 +6,7 @@ const val size = 3
 data class Answer(val seq: MutableList<Int>, val secondTypeAnswers: Int)
 
 fun main(args: Array<String>) {
-    askInput()
+    println(askInput())
 }
 
 fun askInput(): List<Int> {
@@ -26,7 +26,6 @@ fun validateInput(path: String?): List<Int> {
 
         return inputData[1].split(" ").mapNotNull { num ->
             num.map { char ->
-                println(char)
                 if (!char.isDigit() && !char.isWhitespace()) println("Be careful: only digits and whitespaces are allowed")
             }
             num.toIntOrNull()
