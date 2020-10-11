@@ -1,5 +1,4 @@
-import java.util.Queue
-import java.util.LinkedList
+import java.util.*
 
 const val size = 3
 
@@ -8,7 +7,8 @@ data class Answer(val seq: MutableList<Int>, val secondTypeAnswers: Int)
 fun main(args: Array<String>) {
     val input = randomInput()
     println(input)
-    println(applyAlgo(input, ::fifo))
+    println(applyAlgo(input, ::lru))
+    println(oldLru(input))
 }
 
 fun randomInput(): List<Int> {
@@ -22,30 +22,36 @@ fun randomInput(): List<Int> {
 
 // Carcass
 
-fun applyAlgo(listOfQueries: List<Int>, algo: (restQueries: List<Int>, loadedPages: List<Int>) -> Int): Pair<Int, MutableList<Int>> {
+fun applyAlgo(listOfQueries: List<Int>,
+              algo: (restQueries: List<Int>, loadedPages: MutableList<Int>) -> Pair<Int, MutableList<Int>>): Pair<Int, MutableList<Int>> {
     val listOfAnswers: MutableList<Int> = mutableListOf<Int>()
-    val loadedPages: MutableList<Int> = mutableListOf<Int>()
+    var loadedPages: MutableList<Int> = mutableListOf<Int>()
 
     var counter = 0
 
-    for (i in 1..size) {
-        listOfAnswers.add(-1)
-        loadedPages.add(listOfQueries[i])
+//    fill memory to end
+    var i = 0
+    while (loadedPages.size < size) {
+        if (listOfQueries[i] !in loadedPages) {
+            loadedPages.add(listOfQueries[i])
+            listOfAnswers.add(-2)
+        } else listOfAnswers.add(-1)
+        i++
     }
 
-    for (i in size+1 until listOfQueries.size) {
-        if (listOfQueries[i] in loadedPages) {
-            listOfAnswers.add(-1)
-        } else {
-            val pageToReplace: Int = algo(listOfQueries.slice(i until listOfQueries.size), loadedPages)
-            if (pageToReplace != -1) {
-                counter++
-                loadedPages.remove(pageToReplace)
-                loadedPages.add(listOfQueries[i])
-                listOfAnswers.add(pageToReplace)
-            }
-        }
+//    memory is overloaded
+    for (index in i until listOfQueries.size) {
+        val algoResult: Pair<Int, MutableList<Int>> = algo(listOfQueries.slice(index until listOfQueries.size), loadedPages)
 
+        loadedPages = algoResult.second
+
+        if (algoResult.first != -1) {
+            loadedPages.remove(algoResult.first)
+            loadedPages.add(listOfQueries[index])
+
+            listOfAnswers.add(algoResult.first)
+            counter++
+        } else listOfAnswers.add(-1)
     }
 
     return Pair(counter, listOfAnswers)
@@ -54,71 +60,22 @@ fun applyAlgo(listOfQueries: List<Int>, algo: (restQueries: List<Int>, loadedPag
 
 // Algorithms
 
-fun fifo(restQueries: List<Int>, loadedPages: List<Int>): Int {
-    return loadedPages.first()
+fun fifo(restQueries: List<Int>, loadedPages: MutableList<Int>): Pair<Int, MutableList<Int>> {
+    return if (restQueries.first() in loadedPages) {
+        Pair(-1, loadedPages)
+    } else {
+        Pair(loadedPages.first(), loadedPages)
+    }
 }
 
-fun lru(listOfQueries: List<Int>): Answer {
-    val loadedPages: MutableList<Int> = mutableListOf<Int>()
-    val listOfAnswers = mutableListOf<Int>()
+fun lru(restQueries: List<Int>, loadedPages: MutableList<Int>):Pair<Int, MutableList<Int>> {
+    return if (restQueries.first() in loadedPages) {
+//        move page to the end of list
+        loadedPages.remove(restQueries.first())
+        loadedPages.add(restQueries.first())
 
-    loadedPages.add(listOfQueries.first())
-
-    listOfAnswers.add(-2)
-
-    var counter = 0
-
-    for (queryPage in listOfQueries.slice(1 until listOfQueries.size)) {
-        if (queryPage in loadedPages) {
-//            Page is already loaded, let move it to the end of list
-            loadedPages.remove(queryPage)
-            loadedPages.add(queryPage)
-
-            listOfAnswers.add(-1)
-        } else if (loadedPages.size < size) {
-//            Page is not loaded but we don't have to replace anything
-            loadedPages.add(queryPage)
-
-            listOfAnswers.add(-1)
-        } else {
-//            Page is not loaded and we have to replace something
-
-            listOfAnswers.add(loadedPages.first())
-            counter++
-            loadedPages.removeFirst()
-            loadedPages.add(queryPage)
-        }
+        Pair(-1, loadedPages)
+    } else {
+        Pair(loadedPages.first(), loadedPages)
     }
-
-    return Answer(listOfAnswers, counter)
-}
-
-fun opt(listOfQueries: List<Int>): Answer {
-    val loadedPages: MutableList<Int> = mutableListOf()
-    val listOfAnswers: MutableList<Int> = mutableListOf()
-
-    for ((index, queryPage) in listOfQueries.withIndex()) {
-        if (listOfAnswers.isEmpty()) {
-            listOfAnswers.add(-1)
-
-            loadedPages.add(queryPage)
-        } else if (queryPage in loadedPages) {
-            listOfAnswers.add(-1)
-        } else if (loadedPages.size < size) {
-            loadedPages.add(queryPage)
-
-            listOfAnswers.add(-1)
-        } else {
-
-//          replace
-            val firstQueriesList: MutableList<Int> = mutableListOf()
-            loadedPages.map { pageNumber -> listOfQueries.slice(index until listOfQueries.size).indexOf(pageNumber) }
-                .reduce { acc, value ->
-                    if (value > acc) value else acc
-                }
-
-            listOfAnswers.add(firstQueriesList.last())
-        }
-    }
-    return Answer(listOfAnswers, 0)
 }
