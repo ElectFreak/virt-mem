@@ -3,7 +3,7 @@ import java.lang.Exception
 
 fun main(args: Array<String>) {
     val (listOfQueries, size) = askInput()
-    println(applyAlgo(size, listOfQueries, ::fifo))
+    println(applyAlgo(size, listOfQueries, ::lru))
 }
 
 fun askInput(): Pair<Int, List<Int>> {
@@ -16,6 +16,7 @@ fun validateInput(path: String?): Pair<Int, List<Int>> {
         if (path == null) throw Exception("Path is not given")
         val inputData = File(path).readLines()
 
+        if (inputData.isEmpty()) throw Exception("Input file is empty")
         if (!inputData[0].all { it.isDigit() }) throw Exception("First line is not digit")
         if (inputData.size < 2) throw Exception("Two strings are required")
         if (inputData.size > 2) println("Be careful: strings after the second will be ignored")
@@ -29,7 +30,7 @@ fun validateInput(path: String?): Pair<Int, List<Int>> {
         })
 
     } catch (e: Exception) {
-        println("Error")
+        println("Error!")
         println(e.message)
         println("Try again:")
 
