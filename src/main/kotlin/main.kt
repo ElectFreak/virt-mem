@@ -5,7 +5,8 @@ const val size = 3
 data class Answer(val seq: MutableList<Int>, val secondTypeAnswers: Int)
 
 fun main(args: Array<String>) {
-    val input = randomInput()
+//    val input = randomInput()
+    val input = listOf<Int>(3, 4)
     println(input)
     println(applyAlgo(input, ::opt))
     println(applyAlgo(input, ::fifo))
@@ -37,7 +38,13 @@ fun applyAlgo(listOfQueries: List<Int>,
             loadedPages.add(listOfQueries[i])
             listOfAnswers.add(-2)
         } else listOfAnswers.add(-1)
+
         i++
+
+        if (i == listOfQueries.size) {
+//            if requests are over before memory is filled
+            return Pair(0, listOfAnswers)
+        }
     }
 
 //    memory is overloaded
