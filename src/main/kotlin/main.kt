@@ -7,8 +7,9 @@ data class Answer(val seq: MutableList<Int>, val secondTypeAnswers: Int)
 fun main(args: Array<String>) {
     val input = randomInput()
     println(input)
+    println(applyAlgo(input, ::opt))
+    println(applyAlgo(input, ::fifo))
     println(applyAlgo(input, ::lru))
-    println(oldLru(input))
 }
 
 fun randomInput(): List<Int> {
@@ -78,4 +79,35 @@ fun lru(restQueries: List<Int>, loadedPages: MutableList<Int>):Pair<Int, Mutable
     } else {
         Pair(loadedPages.first(), loadedPages)
     }
+}
+
+fun opt(restQueries: List<Int>, loadedPages: MutableList<Int>): Pair<Int, MutableList<Int>>  {
+
+    if (restQueries.first() in loadedPages) return Pair(-1, loadedPages)
+
+    fun firstQueryToPage(page: Int): Int {
+//  count the first access to the page from rest queries
+        for (i in 1 until restQueries.size) {
+            if (restQueries[i] == page) return i
+        }
+
+        return restQueries.size
+    }
+
+//    make such list of pairs (for already loaded pages): <number of first query to page, page number>
+    val pagesWithFirstQueries: List<Pair<Int, Int>> = loadedPages.map { loadedPage ->
+        val firstQuery: Int = firstQueryToPage(loadedPage)
+        if (firstQueryToPage(loadedPage) == restQueries.size) {
+//            page without any query in future, return out of algo
+            return Pair(loadedPage, loadedPages)
+        }
+
+        Pair(firstQuery, loadedPage)
+    }
+
+    val replaceTo = pagesWithFirstQueries.reduce {acc, value ->
+        if (acc.first > value.first) acc else value
+    }.second
+
+    return Pair(replaceTo, loadedPages)
 }
