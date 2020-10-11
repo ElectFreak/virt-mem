@@ -1,35 +1,32 @@
 import java.io.File
 import java.lang.Exception
 
-const val size = 3
-
-data class Answer(val seq: MutableList<Int>, val secondTypeAnswers: Int)
-
 fun main(args: Array<String>) {
-    println(askInput())
+    val (listOfQueries, size) = askInput()
+    println(applyAlgo(size, listOfQueries, ::fifo))
 }
 
-fun askInput(): List<Int> {
+fun askInput(): Pair<Int, List<Int>> {
     println("Enter path to file")
     return validateInput(readLine())
 }
 
-fun validateInput(path: String?): List<Int> {
+fun validateInput(path: String?): Pair<Int, List<Int>> {
     try {
         if (path == null) throw Exception("Path is not given")
         val inputData = File(path).readLines()
 
-        if (!inputData[0][0].isDigit()) throw Exception("First char in first line is not digit")
+        if (!inputData[0].all { it.isDigit() }) throw Exception("First line is not digit")
         if (inputData.size < 2) throw Exception("Two strings are required")
         if (inputData.size > 2) println("Be careful: strings after the second will be ignored")
         if (inputData[0].split(" ").size > 1) println("Be careful: there is only one memory size")
 
-        return inputData[1].split(" ").mapNotNull { num ->
+        return Pair(inputData[0].toInt(), inputData[1].split(" ").mapNotNull { num ->
             num.map { char ->
                 if (!char.isDigit() && !char.isWhitespace()) println("Be careful: only digits and whitespaces are allowed")
             }
             num.toIntOrNull()
-        }
+        })
 
     } catch (e: Exception) {
         println("Error")
@@ -51,7 +48,7 @@ fun randomInput(): List<Int> {
 
 // Carcass
 
-fun applyAlgo(listOfQueries: List<Int>,
+fun applyAlgo(listOfQueries: List<Int>, memorySize: Int,
               algo: (restQueries: List<Int>, loadedPages: MutableList<Int>) -> Pair<Int, MutableList<Int>>): Pair<Int, MutableList<Int>> {
     val listOfAnswers: MutableList<Int> = mutableListOf<Int>()
     var loadedPages: MutableList<Int> = mutableListOf<Int>()
@@ -60,7 +57,7 @@ fun applyAlgo(listOfQueries: List<Int>,
 
 //    fill memory to end
     var i = 0
-    while (loadedPages.size < size) {
+    while (loadedPages.size < memorySize) {
         if (listOfQueries[i] !in loadedPages) {
             loadedPages.add(listOfQueries[i])
             listOfAnswers.add(-2)
@@ -92,7 +89,6 @@ fun applyAlgo(listOfQueries: List<Int>,
     return Pair(counter, listOfAnswers)
 }
 
-
 // Algorithms
 
 fun fifo(restQueries: List<Int>, loadedPages: MutableList<Int>): Pair<Int, MutableList<Int>> {
@@ -103,7 +99,7 @@ fun fifo(restQueries: List<Int>, loadedPages: MutableList<Int>): Pair<Int, Mutab
     }
 }
 
-fun lru(restQueries: List<Int>, loadedPages: MutableList<Int>):Pair<Int, MutableList<Int>> {
+fun lru(restQueries: List<Int>, loadedPages: MutableList<Int>): Pair<Int, MutableList<Int>> {
     return if (restQueries.first() in loadedPages) {
 //        move page to the end of list
         loadedPages.remove(restQueries.first())
