@@ -1,9 +1,12 @@
+import org.w3c.dom.ranges.Range
 import java.io.File
 import java.lang.Exception
 
 fun main(args: Array<String>) {
     val (listOfQueries, size) = askInput()
+    println(applyAlgo(size, listOfQueries, ::fifo))
     println(applyAlgo(size, listOfQueries, ::lru))
+    println(applyAlgo(size, listOfQueries, ::opt))
 }
 
 fun askInput(): Pair<Int, List<Int>> {
