@@ -57,6 +57,8 @@ fun randomInput(): List<Int> {
 }
 
 // Carcass
+// Apply algo uses one of algorithms on every step like it described in README.md.
+// It gives scalability to implement new algorithms in future. We can even use different algorithms on different queries.
 
 fun applyAlgo(listOfQueries: List<Int>, memorySize: Int,
               algo: (restQueries: List<Int>, loadedPages: MutableList<Int>) -> Pair<Int, MutableList<Int>>): Pair<Int, MutableList<Int>> {
