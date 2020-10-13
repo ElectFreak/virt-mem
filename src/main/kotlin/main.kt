@@ -47,12 +47,12 @@ fun validateInput(path: String?): Pair<Int, List<Int>> {
     }
 }
 
-fun randomInput(): List<Int> {
+fun randomInput(sizeRange: IntRange, queryRange: IntRange): List<Int> {
 //    random sequence of requests with random size
 
-    val size = (100..150).random()
+    val size = sizeRange.random()
     return List<Int>(size) {
-        (1..10).random()
+        queryRange.random()
     }
 }
 
