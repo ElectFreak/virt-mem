@@ -28,6 +28,15 @@ tasks.test {
     }
 }
 
+tasks.withType<Jar> {
+    manifest {
+        attributes["Main-Class"] = "MainKt"
+    }
+    // here zip stuff found in runtimeClasspath:
+
+    from(configurations.runtimeClasspath.get().map {if (it.isDirectory) it else zipTree(it)})
+
+}
 tasks.withType<KotlinCompile>() {
     kotlinOptions.jvmTarget = "1.8"
 }
