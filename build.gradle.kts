@@ -46,3 +46,9 @@ application {
 
 val run: JavaExec by tasks
 run.standardInput = System.`in`
+
+tasks.register("test") {
+    doLast {
+
+    }
+}
