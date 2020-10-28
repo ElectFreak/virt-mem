@@ -7,4 +7,5 @@ before_install:
   - export PATH=$GRADLE_HOME/bin:$PATH
   - gradle -v
 script:
-  gradle jar
+  - gradle jar
+  - ./test.sh

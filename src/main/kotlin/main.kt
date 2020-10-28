@@ -3,16 +3,16 @@ import java.io.File
 import java.lang.Exception
 
 fun main(args: Array<String>) {
-//    val (size, listOfQueries) = askInput()
+    val (size, listOfQueries) = askInput()
 
 //    val size = 5
 //    val listOfQueries = randomInput(10..15, 1..20)
 //    println(listOfQueries)
-//    println(applyAlgo(listOfQueries, size, ::fifo))
-//    println(applyAlgo(listOfQueries, size, ::lru))
-//    println(applyAlgo(listOfQueries, size, ::opt))
+    println(applyAlgo(listOfQueries, size, ::fifo))
+    println(applyAlgo(listOfQueries, size, ::lru))
+    println(applyAlgo(listOfQueries, size, ::opt))
 
-    applyAlgoDynamic(numberOfQueries = 50, memorySize = 3, depth = 5, algo = ::opt)
+//    applyAlgoDynamic(numberOfQueries = 50, memorySize = 3, depth = 5, algo = ::opt)
 }
 
 fun askInput(): Pair<Int, List<Int>> {
